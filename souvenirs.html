@@ -11,15 +11,17 @@
       fontFamily:{ display:['"Poppins"','system-ui'], body:['"Inter"','system-ui'] },
       keyframes:{
         gradientMove:{'0%':{backgroundPosition:'0% 50%'},'50%':{backgroundPosition:'100% 50%'},'100%':{backgroundPosition:'0% 50%'}},
-        reveal:{'0%':{opacity:0,transform:'translateY(24px)'},'100%':{opacity:1,transform:'translateY(0)'}}
+        reveal:{'0%':{opacity:0,transform:'translateY(24px)'},'100%':{opacity:1,transform:'translateY(0)'}},
+        pop:{'0%':{transform:'scale(.98)'},'100%':{transform:'scale(1)'}}
       },
-      animation:{ gradientMove:'gradientMove 16s ease infinite', reveal:'reveal .6s ease both' }
+      animation:{ gradientMove:'gradientMove 16s ease infinite', reveal:'reveal .6s ease both', pop:'pop .25s ease both' }
     }}
   };
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
 <style>
   :root{ --h:200; }
+  /* Fond vivant + jour/nuit */
   .bg-morning, .bg-night{
     background: linear-gradient(135deg,
       hsl(calc(var(--h)), 70%, 45%),
@@ -31,10 +33,16 @@
   }
   .bg-animated{ animation: gradientMove 12s ease infinite; }
 
-  .masonry img{ break-inside:avoid }
-  .card{ position:relative; overflow:hidden; border-radius:1rem; }
-  .card img{ width:100%; height:auto; display:block; transition:transform .5s ease, filter .4s ease }
-  .card:hover img{ transform:scale(1.06); filter:brightness(.95) }
+  /* Masonry + cartes stylées */
+  .masonry img, .masonry video, .masonry .thumb{ break-inside:avoid; width:100%; height:auto; display:block }
+  .card{
+    position:relative; overflow:hidden; border-radius:1rem;
+    background:linear-gradient(to bottom right, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+  .thumb{ transition:transform .5s ease, filter .4s ease }
+  .card:hover .thumb{ transform:scale(1.06); filter:brightness(.95) }
   .overlay{
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
     padding:16px; text-align:center; font-weight:700; line-height:1.35; font-size:1.02rem;
@@ -43,11 +51,25 @@
     z-index:2; pointer-events:none; text-shadow:0 1px 2px rgba(0,0,0,.6);
   }
   .card:hover .overlay, .card.touch .overlay{ opacity:1; transform:translateY(0) }
-  .ringed{ box-shadow:0 10px 30px rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.05) }
+  .playBadge{
+    position:absolute; right:10px; bottom:10px; z-index:3;
+    background:rgba(0,0,0,.55); color:#fff; border:1px solid rgba(255,255,255,.25);
+    padding:6px 10px; border-radius:999px; font-weight:700; font-size:.85rem; display:flex; align-items:center; gap:.35rem;
+    backdrop-filter: blur(6px);
+  }
 
-  /* Lightbox fondu */
+  /* Lightbox */
+  #lightbox{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.85); z-index:60 }
+  #lightboxInner{ max-width:92vw; max-height:85vh; }
+  #lightImg, #lightVid{
+    max-width:92vw; max-height:85vh; border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.45);
+    border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.05)
+  }
   #lightImg{ opacity:0; transition:opacity .7s ease }
   #lightbox.show #lightImg{ opacity:1 }
+  #lightVid{ background:#000 }
+  .navBtn{ position:absolute; top:50%; transform:translateY(-50%); font-size:2rem; color:#fff; opacity:.9 }
+  #prev{ left:1rem } #next{ right:1rem } #close{ top:1rem; right:1rem; font-size:1.6rem; transform:none }
 </style>
 </head>
 <body class="min-h-screen text-slate-100 font-body">
@@ -56,24 +78,27 @@
   <main class="container mx-auto px-4 py-10 md:py-14">
     <h1 class="text-center text-3xl md:text-5xl font-display font-extrabold animate-reveal">Nos Souvenirs ❤️</h1>
     <p class="text-center opacity-85 mt-2 animate-reveal">
-      Instants volés, joies partagées — chaque image murmure un mot d’amour à mon Youssoupha.
+      Instants volés, joies partagées — chaque image et vidéo murmure un mot d’amour mon Youssoupha❤️.
     </p>
 
     <section id="gallery" class="mt-8 masonry columns-2 md:columns-3 lg:columns-4 gap-4 [column-fill:_balance]"></section>
 
     <div class="mt-10 text-center text-sm opacity-80">
-      Remplace ces images par vos vraies photos (format conseillé : 1200×1600).
+     Nur Qalbi <code>mon Amour</code> : <strong>pour Toujours</strong>❤️<strong>
     </div>
   </main>
 
   <a href="index.html" class="fixed bottom-5 left-5 text-sm text-white/85 hover:text-fuchsia-400 transition flex items-center gap-1 z-50">⬅️ Retour à l’accueil</a>
 
   <!-- Lightbox -->
-  <div id="lightbox" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.85);z-index:60">
-    <button id="prev"  class="absolute left-4 top-1/2 -translate-y-1/2 text-white/90 text-3xl">‹</button>
-    <img id="lightImg" src="" alt="Souvenir" class="max-h-[85vh] max-w-[92vw] rounded-xl shadow-2xl ringed" loading="eager">
-    <button id="next"  class="absolute right-4 top-1/2 -translate-y-1/2 text-white/90 text-3xl">›</button>
-    <button id="close" class="absolute top-4 right-4 text-white/90 text-2xl">✕</button>
+  <div id="lightbox">
+    <button id="prev"  class="navBtn">‹</button>
+    <div id="lightboxInner">
+      <img id="lightImg" src="" alt="Souvenir" style="display:none">
+      <video id="lightVid" controls playsinline style="display:none"></video>
+    </div>
+    <button id="next"  class="navBtn">›</button>
+    <button id="close" class="navBtn">✕</button>
   </div>
 
 <script>
@@ -81,132 +106,189 @@
   const bg=document.getElementById('bg');
   const hr=Number(new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',hour:'2-digit',hour12:false}).format(new Date()));
   bg.className='fixed inset-0 -z-10 bg-animated '+((hr>=18||hr<6)?'bg-night':'bg-morning');
-  let hue=200; setInterval(()=>{ hue=(hue+5)%360; document.documentElement.style.setProperty('--h',hue) },1000);
+  let hue=200; setInterval(()=>{ hue=(hue+5)%360; document.documentElement.style.setProperty('--h',hue); },1000);
 
-  /* --- Citations (20) --- */
+  /* --- Citations (45 = 30 photos + 15 vidéos) --- */
   const QUOTES = [
-    "Mon Youssoupha, mon éternel coup de cœur.",
-    "Toi, le mien. Aujourd’hui, demain, toujours.",
-    "Nur qalbi — نور قلبي — la lumière de mon cœur.",
-    "Mon Youssoupha, ma plus belle évidence.",
-    "Le mien, et personne d’autre.",
-    "Habibi, chaque jour je te choisis.",
-    "Mon roi, mon repère, mon refuge.",
-    "Avec toi, je suis chez moi.",
-    "Ton sourire, mon lever de soleil.",
-    "Je t’aime, simplement, infiniment.",
-    "Mon Youssoupha, ma paix et ma joie.",
-    "Le mien : tes bras, mon horizon.",
-    "Nur qalbi, tu rends tout plus doux.",
-    "Main dans la main, pour la vie.",
-    "Toi + Moi = Nous. Pour toujours.",
-    "Le mien, le seul, l’unique.",
-    "Mon Youssoupha, mon aujourd’hui et tous mes demains.",
-    "Ton prénom est ma plus belle habitude.",
-    "Mon ancre quand tout bouge.",
-    "Avec toi, l’amour a un visage : le tien."
+    "Mon Youssoupha, mon éternel coup de cœur.","Toi, le mien. Aujourd’hui, demain, toujours.",
+    "Nur qalbi — نور قلبي — la lumière de mon cœur.","Mon Youssoupha, ma plus belle évidence.",
+    "Le mien, et personne d’autre.","Habibi, chaque jour je te choisis.","Mon roi, mon repère, mon refuge.",
+    "Avec toi, je suis chez moi.","Ton sourire, mon lever de soleil.","Je t’aime, simplement, infiniment.",
+    "Mon Youssoupha, ma paix et ma joie.","Le mien : tes bras, mon horizon.","Nur qalbi, tu rends tout plus doux.",
+    "Main dans la main, pour la vie.","Toi + Moi = Nous. Pour toujours.","Le mien, le seul, l’unique.",
+    "Mon aujourd’hui et tous mes demains portent ton prénom.","Ton prénom est ma plus belle habitude.","Mon ancre quand tout bouge.",
+    "Avec toi, l’amour a un visage : le tien.","Toujours un peu plus de nous.","Tes yeux, ma boussole.",
+    "Chaque instant à deux est un trésor.","Auprès de toi, tout s’apaise.","Ton rire efface mes nuages.",
+    "Tu es mon endroit préféré.","Nos pas au même rythme.","Mon demain commence à ton prénom.",
+    "Mon cœur choisit le tien, encore.","Toi, c’est chez moi.",
+    /* 15 pour les vidéos */
+    "Nos rires en mouvement, souvenirs qui dansent.",
+    "Chaque seconde filmée, un battement de plus pour nous.",
+    "Nos regards se répondent, même à travers l’écran.",
+    "Le film de nous deux continue, scène après scène.",
+    "Des scènes de nous, comme des étoiles filantes.",
+    "Nos projets avancent, images après images.",
+    "Les minutes avec toi valent des films entiers.",
+    "Nos mains liées, même hors-champ.",
+    "Ton sourire, ma bande-son préférée.",
+    "Love in motion, toujours.",
+    "On rejoue la scène du bonheur, encore.",
+    "Nos voyages, nos fous rires : play.",
+    "Je t’aime à 25 images par seconde.",
+    "Nos souvenirs brillent comme du cinéma.",
+    "Et si le film ne finissait jamais ?"
   ];
 
-  /* --- Images (20) --- */
-  const URLS = [
-    "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1520974655163-1f3a9e3a88be?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1460364157752-926555421a7f?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1505935428862-770b6f24f629?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1455778977531-4a3ec07c02ed?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1503342394120-0af8fa9267d9?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1496483648148-47c686dc86a8?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1447078806655-40579c2520d6?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1510194821197-8e0851d615f5?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1495360010541-f48722b34f7d?q=80&w=1600&auto=format&fit=crop"
-  ];
+  /* --- Construction des listes locales --- */
+  // 30 photos .jpg
+  const IMAGES = Array.from({length: 30}, (_,i) => ({
+    type:'img',
+    src:`images/img${i+1}.jpg`,
+    quote: QUOTES[i]
+  }));
 
-  /* --- Génération galerie --- */
+  // 15 vidéos .mp4
+  const VIDEOS = Array.from({length: 15}, (_,i) => ({
+    type:'video',
+    src:`images/video${i+1}.mp4`,
+    quote: QUOTES[30 + i]
+  }));
+
+  /* --- Alternance photo, photo, vidéo --- */
+  const MEDIA = [];
+  let pi=0, vi=0;
+  while (pi < IMAGES.length || vi < VIDEOS.length){
+    for(let k=0;k<2 && pi<IMAGES.length;k++) MEDIA.push(IMAGES[pi++]); // 2 photos
+    if(vi < VIDEOS.length) MEDIA.push(VIDEOS[vi++]);                   // 1 vidéo
+  }
+  // MEDIA contient 45 éléments (si 30/15) dans le motif voulu.
+
+  /* --- Génération de la grille --- */
   const gal=document.getElementById('gallery');
-  gal.innerHTML = URLS.map((u,i)=>`
-    <figure class="mb-4 card ringed" data-armed="">
-      <img src="${u}" alt="Souvenir ${i+1}" loading="lazy" data-full="${u}">
-      <figcaption class="overlay">${QUOTES[i]}</figcaption>
-    </figure>`).join('');
+  gal.innerHTML = MEDIA.map((m,i)=>{
+    const rndTilt = (Math.random() * 2 - 1.2).toFixed(2); // petit tilt aléatoire doux
+    if(m.type==='img'){
+      return `
+        <figure class="mb-4 card animate-pop" data-idx="${i}" style="transform:rotate(${rndTilt}deg)">
+          <img class="thumb" src="${m.src}" alt="Souvenir ${i+1}" loading="lazy">
+          <figcaption class="overlay">${m.quote}</figcaption>
+        </figure>`;
+    }else{
+      return `
+        <figure class="mb-4 card animate-pop" data-idx="${i}" style="transform:rotate(${rndTilt}deg)">
+          <video class="thumb" muted playsinline preload="metadata" autoplay loop style="background:#000"></video>
+          <div class="playBadge">▶️ Vidéo</div>
+          <figcaption class="overlay">${m.quote}</figcaption>
+        </figure>`;
+    }
+  }).join('');
 
-  /* --- Tap d'abord pour afficher la citation (mobile), 2e tap pour ouvrir --- */
+  /* --- Brancher sources vidéo + lecture auto des vignettes (pause hors écran) --- */
+  const figures=[...gal.querySelectorAll('figure')];
+  figures.forEach(fig=>{
+    const i = +fig.dataset.idx;
+    if(MEDIA[i].type==='video'){
+      const v = fig.querySelector('video');
+      const s = document.createElement('source');
+      s.src = MEDIA[i].src; s.type = 'video/mp4';
+      v.appendChild(s);
+      v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
+      const forcePlay = ()=> v.play().catch(()=>{});
+      v.addEventListener('loadeddata', forcePlay, {once:true});
+      const io = new IntersectionObserver(entries=>{
+        entries.forEach(e=>{
+          if(e.isIntersecting){ v.play().catch(()=>{}); }
+          else { v.pause(); }
+        });
+      }, {threshold:.25});
+      io.observe(v);
+    }
+  });
+
+  /* --- Citation au clic (mobile: 1er clic = citation, 2e = ouvre) --- */
   const isTouch = window.matchMedia('(hover: none)').matches;
-  const cards = [...document.querySelectorAll('.card')];
-  const imgs  = [...document.querySelectorAll('[data-full]')];
-
+  const cards = [...gal.querySelectorAll('.card')];
   cards.forEach(card=>{
     card.addEventListener('click', (e)=>{
-      if(!isTouch) return; // desktop: hover suffit
-      // si overlay pas encore affiché => l'afficher et "armer" la carte
+      if(!isTouch) return;
       if(!card.classList.contains('touch')){
         card.classList.add('touch');
+        // "arme" la carte pendant 1.2s
         card.dataset.armed = '1';
-        // désarmer après 1,5s si pas de 2e tap
-        setTimeout(()=>{ card.dataset.armed=''; }, 1500);
-        e.preventDefault();
+        setTimeout(()=>card.dataset.armed='', 1200);
         e.stopPropagation();
       }
     });
   });
+  document.addEventListener('click', ()=>{ if(isTouch) cards.forEach(c=>{ c.classList.remove('touch'); c.dataset.armed=''; }); });
 
-  imgs.forEach((im,i)=>{
-    im.addEventListener('click', (e)=>{
-      if(isTouch){
-        const c = im.closest('.card');
-        if(c && c.dataset.armed === '1'){
-          // 1er tap: juste overlay, ne pas ouvrir
-          e.preventDefault();
-          e.stopPropagation();
-          return;
-        }
-      }
-      open(i); // desktop direct, mobile au 2e tap
-    });
-  });
+  /* --- Lightbox (image + vidéo, vidéo en boucle avec son) --- */
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lightImg');
+  const lbVid = document.getElementById('lightVid');
+  const prev  = document.getElementById('prev');
+  const next  = document.getElementById('next');
+  const close = document.getElementById('close');
 
-  // Fermer overlays tactiles en tapant ailleurs
-  document.addEventListener('click', ()=>{
-    if(!isTouch) return;
-    document.querySelectorAll('.card.touch').forEach(c=>{
-      c.classList.remove('touch'); c.dataset.armed='';
-    });
-  });
+  let idx = -1;
 
-  /* --- Lightbox avec fondu --- */
-  const lb=document.getElementById('lightbox'), lbImg=document.getElementById('lightImg');
-  const prev=document.getElementById('prev'), next=document.getElementById('next'), close=document.getElementById('close');
-  let idx=-1;
+  function showMedia(i){
+    const m = MEDIA[i];
+    lbImg.style.display = 'none';
+    lbVid.style.display = 'none';
+    lbVid.pause();
+    lb.classList.add('show');
+
+    if(m.type==='img'){
+      lbImg.src = m.src;
+      lbImg.style.display = '';
+    }else{
+      lbVid.innerHTML = '';
+      const s = document.createElement('source');
+      s.src = m.src; s.type = 'video/mp4';
+      lbVid.appendChild(s);
+      lbVid.loop = true;
+      lbVid.autoplay = true;
+      lbVid.muted = false;   // son ON dans la lightbox
+      lbVid.playsInline = true;
+      lbVid.load();
+      lbVid.style.display = '';
+      lbVid.play().catch(()=>{}); // sur mobile, il peut demander un tap ▶️
+    }
+  }
 
   function open(i){
-    idx=i;
-    lb.style.display='flex';
-    // petit délai pour permettre l’animation d’opacité
+    idx = i;
+    lb.style.display = 'flex';
     requestAnimationFrame(()=> lb.classList.add('show'));
-    lbImg.src = imgs[idx].dataset.full;
+    showMedia(idx);
   }
   function move(d){
-    idx=(idx+d+imgs.length)%imgs.length;
+    idx = (idx + d + MEDIA.length) % MEDIA.length;
+    showMedia(idx);
+  }
+  function hide(){
     lb.classList.remove('show');
-    setTimeout(()=>{ lbImg.src=imgs[idx].dataset.full; lb.classList.add('show'); }, 180);
+    lbVid.pause();
+    setTimeout(()=>{ lb.style.display = 'none'; }, 150);
   }
 
-  prev.addEventListener('click',()=>move(-1));
-  next.addEventListener('click',()=>move(1));
-  close.addEventListener('click',()=>{lb.style.display='none'; lb.classList.remove('show');});
-  lb.addEventListener('click',e=>{ if(e.target===lb){ lb.style.display='none'; lb.classList.remove('show'); }});
-  document.addEventListener('keydown',e=>{
+  figures.forEach((fig,i)=>{
+    fig.addEventListener('click', (e)=>{
+      if(isTouch && fig.classList.contains('touch')){
+        // 1er clic déjà utilisé pour la citation
+        e.preventDefault(); return;
+      }
+      open(i);
+    });
+  });
+  prev.addEventListener('click', ()=>move(-1));
+  next.addEventListener('click', ()=>move(1));
+  close.addEventListener('click', hide);
+  lb.addEventListener('click', e=>{ if(e.target===lb) hide(); });
+  document.addEventListener('keydown', e=>{
     if(lb.style.display!=='flex') return;
-    if(e.key==='Escape') { lb.style.display='none'; lb.classList.remove('show'); }
+    if(e.key==='Escape') hide();
     if(e.key==='ArrowRight') move(1);
     if(e.key==='ArrowLeft')  move(-1);
   });
