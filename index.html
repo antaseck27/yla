@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Joyeux Anniversaire, Youssoupha ❤️</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily:{ display:['"Poppins"','system-ui'], body:['"Inter"','system-ui'] },
+        keyframes:{
+          gradientMove:{ '0%':{backgroundPosition:'0% 50%'}, '50%':{backgroundPosition:'100% 50%'}, '100%':{backgroundPosition:'0% 50%'} },
+          float:{'0%,100%':{transform:'translateY(0)'},'50%':{transform:'translateY(-6px)'}},
+          fadeUp:{'0%':{opacity:0,transform:'translateY(24px)'},'100%':{opacity:1,transform:'translateY(0)'}}
+        },
+        animation:{ gradientMove:'gradientMove 16s ease infinite', float:'float 6s ease-in-out infinite', fadeUp:'fadeUp .7s ease both' }
+      }},
+      darkMode:'class'
+    };
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{ --h:200; --accent:#0ea5a4; --accent-2:#eab308; }
+
+    /* >>> Fond vivant comme 'souvenirs.html' <<< */
+    .bg-morning, .bg-night{
+      background: linear-gradient(135deg,
+        hsl(calc(var(--h)), 70%, 45%),
+        hsl(calc(var(--h) + 60), 65%, 30%),
+        hsl(calc(var(--h) + 120), 70%, 35%)
+      );
+      background-size: 400% 400%;
+      transition: background 1s ease;
+    }
+    .bg-animated{ animation: gradientMove 12s ease infinite; }
+
+    .hearts{ pointer-events:none; position:fixed; inset:0; overflow:hidden; z-index:0 }
+    .hearts span{ position:absolute; bottom:-10vh; font-size:var(--s,16px); animation: gradientMove var(--t,12s) linear infinite; opacity:.55 }
+    .typewriter::after{ content:'|'; margin-left:2px; animation:blink 1s steps(2,start) infinite; }
+    @keyframes blink{ to{visibility:hidden} }
+    .glass{ background:linear-gradient(to bottom right, rgba(255,255,255,.06), rgba(255,255,255,.02)); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,.12) }
+    .parallax{ transform:perspective(900px) translateZ(0); transition:transform .18s ease }
+  </style>
+</head>
+<body class="min-h-screen font-body text-slate-100 relative">
+  <div id="bg" class="fixed inset-0 -z-10 bg-animated"></div>
+  <svg id="stars" class="fixed inset-0 -z-10 pointer-events-none opacity-0 transition" xmlns="http://www.w3.org/2000/svg">
+    <filter id="glow"><feGaussianBlur stdDeviation="1.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </svg>
+  <div class="hearts"></div>
+
+  <main class="container mx-auto px-4 py-10 md:py-14">
+    <section class="max-w-5xl mx-auto">
+      <div class="rounded-2xl glass shadow-2xl overflow-hidden animate-fadeUp">
+        <div class="p-6 md:p-10">
+          <header class="text-center mb-5">
+            <p class="uppercase tracking-widest text-xs md:text-sm text-slate-200/80">Pour mon mari</p>
+            <h1 class="mt-1 text-3xl md:text-5xl font-display font-extrabold">
+              Joyeux Anniversaire, <span class="inline-block animate-float" style="color:var(--accent-2)">Youssoupha</span> 🎉
+            </h1>
+            <p id="typed" class="typewriter mt-2 text-base md:text-lg text-slate-200/90"></p>
+          </header>
+
+          <!-- Compte à rebours en premier -->
+          <div class="rounded-2xl glass p-5 md:p-6 ring-1 ring-white/10">
+            <div class="flex items-center justify-between flex-wrap gap-3">
+              <div class="text-sm uppercase tracking-widest text-slate-200/80">Compte à rebours</div>
+              <div class="text-xs text-slate-200/70">Objectif : <strong>27 novembre – 00:00</strong></div>
+            </div>
+            <div id="countdown" class="mt-3 grid grid-cols-4 gap-3 md:gap-6 text-center">
+              <div class="rounded-xl bg-white/5 ring-1 ring-white/10 p-4"><div id="c-days"  class="text-3xl md:text-4xl font-extrabold font-display">—</div><div class="text-xs md:text-sm opacity-75">Jours</div></div>
+              <div class="rounded-xl bg-white/5 ring-1 ring-white/10 p-4"><div id="c-hours" class="text-3xl md:text-4xl font-extrabold font-display">—</div><div class="text-xs md:text-sm opacity-75">Heures</div></div>
+              <div class="rounded-xl bg-white/5 ring-1 ring-white/10 p-4"><div id="c-mins"  class="text-3xl md:text-4xl font-extrabold font-display">—</div><div class="text-xs md:text-sm opacity-75">Minutes</div></div>
+              <div class="rounded-xl bg-white/5 ring-1 ring-white/10 p-4"><div id="c-secs"  class="text-3xl md:text-4xl font-extrabold font-display">—</div><div class="text-xs md:text-sm opacity-75">Secondes</div></div>
+            </div>
+          </div>
+
+          <!-- Photo couple + CTA -->
+          <div class="mt-8 grid md:grid-cols-[1fr,1.2fr] gap-6 items-center">
+            <div>
+              <div class="relative w-full aspect-[4/5] md:aspect-[3/4] rounded-2xl ring-1 ring-white/15 shadow-2xl overflow-hidden parallax" id="coupleCard">
+                <img id="coupleImg"
+                     src="images/img1.jpeg"
+                     alt="Nous deux ❤️ — remplace cette photo par la vôtre" class="w-full h-full object-cover">
+                <div class="absolute bottom-2 left-2 text-xs bg-black/40 px-2 py-1 rounded-md">Nur Qualbi</div>
+              </div>
+            </div>
+            <div>
+              <div class="rounded-2xl bg-white/5 ring-1 ring-white/10 p-5">
+                <p class="text-base md:text-lg leading-relaxed">
+                  À toi, mon amour, mon ami, mon repère. Que chaque seconde de cette journée te ressemble :
+                  forte, douce et lumineuse. Voici notre petit monde — avec une surprise, une lettre, et
+                  <em>plein de souvenirs</em> à parcourir ensemble.
+                </p>
+                <div class="mt-5 flex flex-wrap items-center gap-3">
+                  <a href="surprise.html" class="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 font-semibold shadow-lg hover:scale-[1.03] active:scale-95 transition ring-1 ring-white/10"
+                     style="background:var(--accent); color:white">🎁 Ouvrir la surprise</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <footer class="mt-10 text-center text-sm text-slate-200/75">
+            Fabriqué avec 💖 — <span id="year"></span>
+          </footer>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const $=(s,p=document)=>p.querySelector(s);
+    $('#year').textContent = new Date().getFullYear();
+
+    // Thème Paris (jour/nuit)
+    const bg = $('#bg'), stars = $('#stars');
+    const hourParis = Number(new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',hour:'2-digit',hour12:false}).format(new Date()));
+    const isNight = (hourParis >= 18 || hourParis < 6);
+    bg.className = 'fixed inset-0 -z-10 bg-animated ' + (isNight ? 'bg-night' : 'bg-morning');
+    if(isNight){
+      const NS='http://www.w3.org/2000/svg'; const g=document.createElementNS(NS,'g'); g.setAttribute('filter','url(#glow)');
+      for(let i=0;i<120;i++){ const c=document.createElementNS(NS,'circle'); c.setAttribute('cx', Math.random()*innerWidth); c.setAttribute('cy', Math.random()*innerHeight); c.setAttribute('r', Math.random()<.85 ? 0.8 : 1.4); c.setAttribute('fill', Math.random()<.7 ? '#eab308' : '#93c5fd'); g.appendChild(c); }
+      stars.appendChild(g); stars.style.opacity='0.6';
+    }
+
+    // >>> Changement visible de la teinte du fond (comme souvenirs)
+    let hue = 200;
+    setInterval(()=>{ hue = (hue + 5) % 360; document.documentElement.style.setProperty('--h', hue); }, 1000);
+
+    // Écriture machine
+    const typedEl = $('#typed'); const msgs = [
+      'Un an de plus à t’aimer, Youssoupha.',
+      'Force, élégance et bonté — c’est toi.',
+      'Cap sur nos projets, main dans la main.',
+      'Aujourd’hui, c’est 100% toi. Joyeux anniversaire !'
+    ];
+    let mi=0, ci=0, typing=true;
+    (function loop(){
+      const m=msgs[mi];
+      if(typing){ typedEl.textContent=m.slice(0, ++ci); if(ci===m.length){ typing=false; return setTimeout(loop,1400);} }
+      else{ typedEl.textContent=m.slice(0, --ci); if(ci===0){ typing=true; mi=(mi+1)%msgs.length; } }
+      setTimeout(loop, typing?55:20);
+    })();
+
+    // Particules
+    const hearts=document.querySelector('.hearts'), icons=['◆','●','●','◆','💖'];
+    function spawn(){
+      const s=document.createElement('span');
+      s.textContent=icons[Math.floor(Math.random()*icons.length)];
+      s.style.left=Math.random()*100+'%';
+      s.style.setProperty('--s',(12+Math.random()*20)+'px');
+      s.style.setProperty('--t',(10+Math.random()*14)+'s');
+      hearts.appendChild(s); setTimeout(()=>s.remove(), 25000);
+    }
+    for(let i=0;i<20;i++) spawn(); setInterval(spawn, 1400);
+
+    // Compte à rebours → prochain 27/11 00:00 (UTC base)
+    (function tick(){
+      const now=new Date(); const y=now.getUTCFullYear();
+      let target=new Date(Date.UTC(y,10,27,0,0,0)); if(now>target) target=new Date(Date.UTC(y+1,10,27,0,0,0));
+      function t(){
+        const diff=target-new Date();
+        if(diff<=0){ $('#countdown').innerHTML='<div class="col-span-4 text-2xl md:text-3xl font-display font-bold">🎉 Joyeux Anniversaire, Youssoupha !!!</div>'; return; }
+        const s=Math.floor(diff/1000), d=Math.floor(s/86400), h=Math.floor((s%86400)/3600), m=Math.floor((s%3600)/60), sec=s%60;
+        $('#c-days').textContent=d; $('#c-hours').textContent=String(h).padStart(2,'0'); $('#c-mins').textContent=String(m).padStart(2,'0'); $('#c-secs').textContent=String(sec).padStart(2,'0');
+        setTimeout(t,1000);
+      } t();
+    })();
+
+    // Parallax photo
+    const card=$('#coupleCard');
+    card.addEventListener('mousemove',ev=>{ const r=card.getBoundingClientRect(); const dx=(ev.clientX-(r.left+r.width/2))/r.width; const dy=(ev.clientY-(r.top+r.height/2))/r.height; card.style.transform=`perspective(900px) rotateY(${dx*6}deg) rotateX(${-dy*6}deg) scale(1.02)`; });
+    card.addEventListener('mouseleave',()=> card.style.transform='perspective(900px)');
+  </script>
+  
+</body>
+</html>

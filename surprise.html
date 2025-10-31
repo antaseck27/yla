@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pour toi, Youssoupha 💌</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily:{ display:['"Poppins"','system-ui'], body:['"Inter"','system-ui'] },
+        keyframes:{
+          gradientMove:{'0%':{backgroundPosition:'0% 50%'},'50%':{backgroundPosition:'100% 50%'},'100%':{backgroundPosition:'0% 50%'}},
+          drift:{'0%':{transform:'translateY(0) translateX(0)'},'100%':{transform:'translateY(-120vh) translateX(var(--dx,0))'}},
+          pulseSoft:{'0%,100%':{transform:'scale(1)'},'50%':{transform:'scale(1.05)'}}
+        },
+        animation:{ gradientMove:'gradientMove 16s ease infinite', drift:'drift 12s linear infinite', pulseSoft:'pulseSoft 1.8s ease-in-out infinite' }
+      }}
+    };
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{ --h:200; }
+    /* Fond vivant (couleur qui change) */
+    .bg-morning, .bg-night{
+      background: linear-gradient(135deg,
+        hsl(calc(var(--h)), 70%, 45%),
+        hsl(calc(var(--h) + 60), 65%, 30%),
+        hsl(calc(var(--h) + 120), 70%, 35%)
+      );
+      background-size: 400% 400%;
+      transition: background 1s ease;
+    }
+    .bg-animated{ animation: gradientMove 12s ease infinite; }
+
+    .glass{background:linear-gradient(to bottom right, rgba(255,255,255,.06), rgba(255,255,255,.02)); backdrop-filter: blur(10px); border:1px solid rgba(255,255,255,.12)}
+    .typewriter::after{content:'|'; margin-left:2px; animation:blink 1s steps(2,start) infinite;} @keyframes blink{to{visibility:hidden}}
+    .hearts{pointer-events:none; position:fixed; inset:0; overflow:hidden; z-index:0}
+    .hearts span{position:absolute; bottom:-10vh; font-size:var(--s,16px); animation: drift var(--t,12s) linear infinite; opacity:.55}
+    /* Bascule intensité feux d’artifice (optionnel) */
+    .fx-toggle{position:fixed; bottom:1rem; right:1rem; z-index:80; opacity:.85}
+  </style>
+</head>
+<body class="min-h-screen text-slate-100 font-body">
+  <div id="bg" class="fixed inset-0 -z-10 bg-animated"></div>
+  <div id="hearts" class="hearts"></div>
+
+  <main class="container mx-auto px-4 py-12 md:py-16">
+    <section class="max-w-3xl mx-auto rounded-2xl glass ring-1 ring-white/20 shadow-2xl p-6 md:p-10">
+      <h1 class="text-3xl md:text-5xl font-display font-extrabold text-center mb-4">À toi, Youssoupha 💌</h1>
+      <p id="letter" class="typewriter text-lg leading-relaxed whitespace-pre-line"></p>
+      <div class="mt-8 grid place-items-center">
+        <a href="souvenirs.html" id="btnSouvenirs"
+           class="inline-flex items-center gap-2 rounded-xl bg-fuchsia-600 text-white px-5 py-3 font-semibold shadow-lg hover:scale-[1.03] active:scale-95 transition opacity-0 pointer-events-none">
+          📸 Voir nos souvenirs
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Retour accueil -->
+  <a href="index.html" class="fixed bottom-5 left-5 text-sm text-white/85 hover:text-fuchsia-400 transition flex items-center gap-1">⬅️ Retour à l’accueil</a>
+  <!-- Bascule d’intensité (facultatif) -->
+  <button id="toggleFx" class="fx-toggle rounded-xl bg-white/10 ring-1 ring-white/20 px-3 py-2 text-sm hover:scale-[1.03] active:scale-95 transition">
+    🧨 Feux: <span id="fxLabel">Fort</span>
+  </button>
+
+  <script>
+    /* --- Thème Paris + fond vivant --- */
+    const bg=document.getElementById('bg');
+    const hr=Number(new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',hour:'2-digit',hour12:false}).format(new Date()));
+    bg.className='fixed inset-0 -z-10 bg-animated '+((hr>=18||hr<6)?'bg-night':'bg-morning');
+    let hue=200; setInterval(()=>{ hue=(hue+5)%360; document.documentElement.style.setProperty('--h',hue); },1000);
+
+    /* --- Particules décoratives --- */
+    const hearts=document.getElementById('hearts'), icons=['◆','●','💖'];
+    function spawn(){ const s=document.createElement('span'); s.textContent=icons[Math.floor(Math.random()*icons.length)];
+      s.style.left=Math.random()*100+'%'; s.style.setProperty('--s',(12+Math.random()*20)+'px'); s.style.setProperty('--t',(10+Math.random()*14)+'s'); s.style.setProperty('--dx',(Math.random()*80-40)+'px');
+      s.style.color=Math.random()<.5?'rgba(234,179,8,.9)':'rgba(14,165,164,.9)'; hearts.appendChild(s); setTimeout(()=>s.remove(),22000); }
+    for(let i=0;i<18;i++) spawn(); setInterval(spawn,1200);
+
+    /* --- Lettre d'amour en écriture machine --- */
+    const content=[
+      "Mon amour,","","Chaque jour passé près de toi est un pays nouveau : j’y découvre une langue faite de gestes tendres, de regards qui rassurent et de silences où nos cœurs se comprennent.",
+      "Merci d’être ce phare qui éclaire mes doutes, ce rire qui disperse mes nuages, cette main qui ne me lâche pas.","",
+      "Je te dois plus que des mots : de la reconnaissance. Pour ta patience quand je trébuche, pour ta force quand je faiblis, pour ta confiance quand je rêve trop grand.",
+      "Tu as fait de notre “nous” une maison, et je m’y sens en paix.","",
+      "Alors, faisons des plans : bâtir nos projets comme on plante des arbres — avec des racines solides et des cimes qui touchent le ciel.",
+      "Un foyer vivant, nos voyages à deux, nos idées qui deviennent entreprises, nos matins pressés et nos soirs qui prennent le temps.","",
+      "Pour aujourd’hui, pour demain, pour longtemps. Je t’aime."
+    ].join("\n");
+
+    const el=document.getElementById('letter'); let i=0;
+    function type(){ el.textContent=content.slice(0, i++); if(i<=content.length){ setTimeout(type,22);} else { finishTyping(); } }
+    setTimeout(type,400);
+
+    /* ===============================
+       FEUX D'ARTIFICE — VERSION INTENSE
+       =============================== */
+    let FX_STRONG = true; // intensité par défaut
+    const fxLabel = document.getElementById('fxLabel');
+    document.getElementById('toggleFx').addEventListener('click', ()=>{
+      FX_STRONG = !FX_STRONG;
+      fxLabel.textContent = FX_STRONG ? 'Fort' : 'Doux';
+    });
+
+    function fireworksController({duration=4000, density=1.0, autoRemove=true}={}){
+      const c=document.createElement('canvas');
+      Object.assign(c.style,{position:'fixed',inset:0,zIndex:70,pointerEvents:'none'});
+      document.body.appendChild(c);
+      const ctx=c.getContext('2d');
+      const dpr=window.devicePixelRatio||1;
+      function resize(){ c.width=innerWidth*dpr; c.height=innerHeight*dpr; c.style.width=innerWidth+'px'; c.style.height=innerHeight+'px'; }
+      resize(); addEventListener('resize',resize);
+
+      const colors=['#eab308','#0ea5a4','#60A5FA','#34D399','#F59E0B','#EF4444','#A78BFA','#F472B6'];
+      const sparks=[];
+      function burst(x,y,scale=1){
+        const base = FX_STRONG ? 90 : 50;
+        const N = Math.floor((base * scale) * density);
+        for(let i=0;i<N;i++){
+          const ang=Math.random()*Math.PI*2;
+          const sp=(2+Math.random()*3.5)*scale;
+          const r=1.6+Math.random()*1.2;
+          sparks.push({
+            x:x*dpr, y:y*dpr,
+            vx:Math.cos(ang)*sp, vy:Math.sin(ang)*sp,
+            life:60+Math.random()*30, radius:r, col:colors[i%colors.length]
+          });
+        }
+      }
+      // Lignes fusées qui explosent
+      const rockets=[];
+      function launchRocket(){
+        const x=Math.random()*innerWidth*0.8+innerWidth*0.1;
+        const y=innerHeight;
+        const vy=-(4.5+Math.random()*2.5)*(FX_STRONG?1.1:1);
+        rockets.push({x,y,vx:(Math.random()-.5)*1.2,vy,life:40+Math.random()*25});
+      }
+
+      let last=performance.now(), elapsed=0;
+      function loop(t){
+        const dt=t-last; last=t; elapsed+=dt;
+        ctx.clearRect(0,0,c.width,c.height);
+
+        // lancer des fusées et bursts aléatoires
+        if(Math.random() < (FX_STRONG ? 0.12 : 0.06)) burst(Math.random()*innerWidth, innerHeight*(.25+Math.random()*.5), 1+Math.random()*1.2);
+        if(Math.random() < (FX_STRONG ? 0.08 : 0.04)) launchRocket();
+
+        // Update rockets
+        rockets.forEach((r,idx)=>{
+          r.x += r.vx*dpr; r.y += r.vy*dpr; r.vy += 0.06*dpr; r.life--;
+          // trainée
+          ctx.globalCompositeOperation='lighter';
+          ctx.fillStyle='rgba(255,255,255,.35)';
+          ctx.beginPath(); ctx.arc(r.x, r.y, 1.5, 0, 6.283); ctx.fill();
+          if(r.life<=0 || r.vy>0){ // explosion au sommet
+            burst(r.x/dpr, r.y/dpr, 1.3);
+            rockets.splice(idx,1);
+          }
+        });
+
+        // Update sparks
+        for(let i=sparks.length-1;i>=0;i--){
+          const p=sparks[i];
+          p.x += p.vx*dpr; p.y += p.vy*dpr; p.vy += 0.02*dpr; p.life--;
+          ctx.globalCompositeOperation='lighter';
+          ctx.fillStyle=p.col; ctx.globalAlpha=Math.max(p.life/80,0);
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, 6.283); ctx.fill();
+          if(p.life<=0) sparks.splice(i,1);
+        }
+
+        if(duration<=0 || elapsed<duration){ requestAnimationFrame(loop); }
+        else if(autoRemove){ c.remove(); }
+      }
+      requestAnimationFrame(loop);
+
+      return {
+        burst:(x,y,scale=1)=>burst(x,y,scale),
+        launch:()=>launchRocket(),
+        stop:()=>{ duration=0; c.remove(); }
+      };
+    }
+
+    // 1) salve d'ouverture
+    let fx = fireworksController({duration:8000, density:1.0});
+    setTimeout(()=>fx.burst(innerWidth*0.25, innerHeight*0.55, 1.4), 400);
+    setTimeout(()=>fx.burst(innerWidth*0.55, innerHeight*0.40, 1.2), 900);
+    setTimeout(()=>fx.burst(innerWidth*0.80, innerHeight*0.48, 1.5), 1500);
+    // rockets régulières
+    const opener = setInterval(()=>fx.launch(), 600);
+
+    // 2) pluie régulière pendant la frappe de la lettre
+    const drizzle = setInterval(()=>{
+      if(!document.body.contains(el)) return;
+      fx.burst(Math.random()*innerWidth*0.9+innerWidth*0.05, innerHeight*(.25+Math.random()*.6), 1);
+    }, FX_STRONG ? 1200 : 1800);
+
+    function finishTyping(){
+      // arrêter l'ouverture
+      clearInterval(opener);
+      // final: intensité ++ pendant 6 secondes
+      const finale = fireworksController({duration:6000, density:1.25});
+      for(let k=0;k<8;k++){
+        setTimeout(()=>{
+          const x = innerWidth*(0.15 + Math.random()*0.7);
+          const y = innerHeight*(0.30 + Math.random()*0.35);
+          finale.burst(x, y, 1.6);
+          if(Math.random()<0.6) finale.launch();
+        }, 150*k);
+      }
+      // révéler le bouton souvenirs
+      const b=document.getElementById('btnSouvenirs');
+      b.classList.remove('pointer-events-none'); b.style.opacity='1'; b.classList.add('animate-pulseSoft');
+    }
+
+  </script>
+</body>
+</html>
