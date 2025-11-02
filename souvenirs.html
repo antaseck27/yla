@@ -21,7 +21,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
 <style>
   :root{ --h:200; }
-  /* Fond vivant + jour/nuit */
   .bg-morning, .bg-night{
     background: linear-gradient(135deg,
       hsl(calc(var(--h)), 70%, 45%),
@@ -33,7 +32,6 @@
   }
   .bg-animated{ animation: gradientMove 12s ease infinite; }
 
-  /* Masonry + cartes stylées */
   .masonry img, .masonry video, .masonry .thumb{ break-inside:avoid; width:100%; height:auto; display:block }
   .card{
     position:relative; overflow:hidden; border-radius:1rem;
@@ -58,7 +56,6 @@
     backdrop-filter: blur(6px);
   }
 
-  /* Lightbox */
   #lightbox{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.85); z-index:60 }
   #lightboxInner{ max-width:92vw; max-height:85vh; }
   #lightImg, #lightVid{
@@ -84,13 +81,12 @@
     <section id="gallery" class="mt-8 masonry columns-2 md:columns-3 lg:columns-4 gap-4 [column-fill:_balance]"></section>
 
     <div class="mt-10 text-center text-sm opacity-80">
-      Place tes fichiers dans <code>/images/</code> : <strong>img1.jpg → img30.jpg</strong> et <strong>vid1.mp4 → vid15.mp4</strong>.
+      Place tes fichiers dans <code>/images/</code> : <strong>img1.jpg → img30.jpg</strong> et <strong>video1.mp4 → video15.mp4</strong>.
     </div>
   </main>
 
   <a href="index.html" class="fixed bottom-5 left-5 text-sm text-white/85 hover:text-fuchsia-400 transition flex items-center gap-1 z-50">⬅️ Retour à l’accueil</a>
 
-  <!-- Lightbox -->
   <div id="lightbox">
     <button id="prev"  class="navBtn">‹</button>
     <div id="lightboxInner">
@@ -139,18 +135,16 @@
     "Et si le film ne finissait jamais ?"
   ];
 
-  /* --- Construction des listes locales --- */
-  // 30 photos .jpg
+  /* --- Listes locales avec CHEMINS ABSOLUS (compat Vercel) --- */
   const IMAGES = Array.from({length: 30}, (_,i) => ({
     type:'img',
-    src:`images/img${i+1}.jpg`,
+    src:`/images/img${i+1}.jpg`,      // ← / au début
     quote: QUOTES[i]
   }));
 
-  // 15 vidéos .mp4
   const VIDEOS = Array.from({length: 15}, (_,i) => ({
     type:'video',
-    src:`images/video${i+1}.mp4`,
+    src:`/images/video${i+1}.mp4`,    // ← / au début
     quote: QUOTES[30 + i]
   }));
 
@@ -161,16 +155,15 @@
     for(let k=0;k<2 && pi<IMAGES.length;k++) MEDIA.push(IMAGES[pi++]); // 2 photos
     if(vi < VIDEOS.length) MEDIA.push(VIDEOS[vi++]);                   // 1 vidéo
   }
-  // MEDIA contient 45 éléments (si 30/15) dans le motif voulu.
 
   /* --- Génération de la grille --- */
   const gal=document.getElementById('gallery');
   gal.innerHTML = MEDIA.map((m,i)=>{
-    const rndTilt = (Math.random() * 2 - 1.2).toFixed(2); // petit tilt aléatoire doux
+    const rndTilt = (Math.random() * 2 - 1.2).toFixed(2);
     if(m.type==='img'){
       return `
-        <figure class="mb-4 card animate-pop" data-idx="${i}" style="transform:rotate(${rndTilt}deg)">
-          <img class="thumb" src="${m.src}" alt="Souvenir ${i+1}" loading="lazy">
+        <figure class="mb-4 card animate-pop" data-idx="${i}">
+          <img class="thumb" src="${m.src}" alt="Souvenir ${i+1}" loading="lazy" style="transform:rotate(${rndTilt}deg)">
           <figcaption class="overlay">${m.quote}</figcaption>
         </figure>`;
     }else{
@@ -183,7 +176,7 @@
     }
   }).join('');
 
-  /* --- Brancher sources vidéo + lecture auto des vignettes (pause hors écran) --- */
+  /* --- Brancher les sources vidéo + pause hors écran --- */
   const figures=[...gal.querySelectorAll('figure')];
   figures.forEach(fig=>{
     const i = +fig.dataset.idx;
@@ -193,43 +186,35 @@
       s.src = MEDIA[i].src; s.type = 'video/mp4';
       v.appendChild(s);
       v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
-      const forcePlay = ()=> v.play().catch(()=>{});
-      v.addEventListener('loadeddata', forcePlay, {once:true});
       const io = new IntersectionObserver(entries=>{
-        entries.forEach(e=>{
-          if(e.isIntersecting){ v.play().catch(()=>{}); }
-          else { v.pause(); }
-        });
+        entries.forEach(e=>{ e.isIntersecting ? v.play().catch(()=>{}) : v.pause(); });
       }, {threshold:.25});
       io.observe(v);
     }
   });
 
-  /* --- Citation au clic (mobile: 1er clic = citation, 2e = ouvre) --- */
+  /* --- Mobile: 1er tap = citation, 2e tap = ouvre (immédiat) --- */
   const isTouch = window.matchMedia('(hover: none)').matches;
   const cards = [...gal.querySelectorAll('.card')];
-  cards.forEach(card=>{
+  cards.forEach((card,i)=>{
     card.addEventListener('click', (e)=>{
-      if(!isTouch) return;
-      if(!card.classList.contains('touch')){
+      if(!isTouch){ open(i); return; }
+      if(card.classList.contains('touch')){
+        card.classList.remove('touch'); open(i);
+      } else {
         card.classList.add('touch');
-        // "arme" la carte pendant 1.2s
-        card.dataset.armed = '1';
-        setTimeout(()=>card.dataset.armed='', 1200);
-        e.stopPropagation();
+        setTimeout(()=> card.classList.remove('touch'), 1500);
       }
     });
   });
-  document.addEventListener('click', ()=>{ if(isTouch) cards.forEach(c=>{ c.classList.remove('touch'); c.dataset.armed=''; }); });
 
-  /* --- Lightbox (image + vidéo, vidéo en boucle avec son) --- */
+  /* --- Lightbox --- */
   const lb = document.getElementById('lightbox');
   const lbImg = document.getElementById('lightImg');
   const lbVid = document.getElementById('lightVid');
   const prev  = document.getElementById('prev');
   const next  = document.getElementById('next');
   const close = document.getElementById('close');
-
   let idx = -1;
 
   function showMedia(i){
@@ -238,7 +223,6 @@
     lbVid.style.display = 'none';
     lbVid.pause();
     lb.classList.add('show');
-
     if(m.type==='img'){
       lbImg.src = m.src;
       lbImg.style.display = '';
@@ -253,35 +237,18 @@
       lbVid.playsInline = true;
       lbVid.load();
       lbVid.style.display = '';
-      lbVid.play().catch(()=>{}); // sur mobile, il peut demander un tap ▶️
+      lbVid.play().catch(()=>{}); // sur mobile : peut demander un tap ▶️
     }
   }
-
   function open(i){
     idx = i;
     lb.style.display = 'flex';
     requestAnimationFrame(()=> lb.classList.add('show'));
     showMedia(idx);
   }
-  function move(d){
-    idx = (idx + d + MEDIA.length) % MEDIA.length;
-    showMedia(idx);
-  }
-  function hide(){
-    lb.classList.remove('show');
-    lbVid.pause();
-    setTimeout(()=>{ lb.style.display = 'none'; }, 150);
-  }
+  function move(d){ idx = (idx + d + MEDIA.length) % MEDIA.length; showMedia(idx); }
+  function hide(){ lb.classList.remove('show'); lbVid.pause(); setTimeout(()=>{ lb.style.display = 'none'; }, 150); }
 
-  figures.forEach((fig,i)=>{
-    fig.addEventListener('click', (e)=>{
-      if(isTouch && fig.classList.contains('touch')){
-        // 1er clic déjà utilisé pour la citation
-        e.preventDefault(); return;
-      }
-      open(i);
-    });
-  });
   prev.addEventListener('click', ()=>move(-1));
   next.addEventListener('click', ()=>move(1));
   close.addEventListener('click', hide);
