@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Nos Souvenirs ❤️</title>
+
+<!-- Tailwind -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
@@ -19,6 +21,7 @@
   };
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+
 <style>
   :root{ --h:200; }
   .bg-morning, .bg-night{
@@ -28,7 +31,6 @@
       hsl(calc(var(--h) + 120), 70%, 35%)
     );
     background-size: 400% 400%;
-    transition: background 1s ease;
   }
   .bg-animated{ animation: gradientMove 12s ease infinite; }
 
@@ -49,12 +51,6 @@
     z-index:2; pointer-events:none; text-shadow:0 1px 2px rgba(0,0,0,.6);
   }
   .card:hover .overlay, .card.touch .overlay{ opacity:1; transform:translateY(0) }
-  .playBadge{
-    position:absolute; right:10px; bottom:10px; z-index:3;
-    background:rgba(0,0,0,.55); color:#fff; border:1px solid rgba(255,255,255,.25);
-    padding:6px 10px; border-radius:999px; font-weight:700; font-size:.85rem; display:flex; align-items:center; gap:.35rem;
-    backdrop-filter: blur(6px);
-  }
 
   #lightbox{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.85); z-index:60 }
   #lightboxInner{ max-width:92vw; max-height:85vh; }
@@ -69,24 +65,22 @@
   #prev{ left:1rem } #next{ right:1rem } #close{ top:1rem; right:1rem; font-size:1.6rem; transform:none }
 </style>
 </head>
+
 <body class="min-h-screen text-slate-100 font-body">
   <div id="bg" class="fixed inset-0 -z-10 bg-animated"></div>
 
   <main class="container mx-auto px-4 py-10 md:py-14">
-    <h1 class="text-center text-3xl md:text-5xl font-display font-extrabold animate-reveal">Nos Souvenirs ❤️</h1>
-    <p class="text-center opacity-85 mt-2 animate-reveal">
+    <h1 class="text-center text-3xl md:text-5xl font-display font-extrabold">Nos Souvenirs ❤️</h1>
+    <p class="text-center opacity-85 mt-2">
       Instants volés, joies partagées — chaque image et vidéo murmure un mot d’amour à mon Youssoupha.
     </p>
 
     <section id="gallery" class="mt-8 masonry columns-2 md:columns-3 lg:columns-4 gap-4 [column-fill:_balance]"></section>
-
-    <div class="mt-10 text-center text-sm opacity-80">
-      Place tes fichiers dans <code>/images/</code> : <strong>img1.jpg → img30.jpg</strong> et <strong>video1.mp4 → video15.mp4</strong>.
-    </div>
   </main>
 
   <a href="index.html" class="fixed bottom-5 left-5 text-sm text-white/85 hover:text-fuchsia-400 transition flex items-center gap-1 z-50">⬅️ Retour à l’accueil</a>
 
+  <!-- Lightbox -->
   <div id="lightbox">
     <button id="prev"  class="navBtn">‹</button>
     <div id="lightboxInner">
@@ -98,13 +92,36 @@
   </div>
 
 <script>
-  /* --- Thème Paris + fond vivant --- */
+  /* --------- FOND JOUR/NUIT + COULEUR VIVANTE --------- */
   const bg=document.getElementById('bg');
   const hr=Number(new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',hour:'2-digit',hour12:false}).format(new Date()));
   bg.className='fixed inset-0 -z-10 bg-animated '+((hr>=18||hr<6)?'bg-night':'bg-morning');
   let hue=200; setInterval(()=>{ hue=(hue+5)%360; document.documentElement.style.setProperty('--h',hue); },1000);
 
-  /* --- Citations (45 = 30 photos + 15 vidéos) --- */
+  /* --------- PARAMÈTRES ADAPTÉS À TES FICHIERS ---------
+     -> Tu as img0.jpg et jusqu'à img31.jpg d'après ta capture.
+     -> Mets ici l'index de début et de fin inclus.
+  ------------------------------------------------------- */
+  const IMG_START = 0;
+  const IMG_END   = 31;   // img31.jpg
+  const VIDEO_COUNT = 15; // video1.mp4 → video15.mp4
+
+  /* --------- UTILITAIRES CHEMINS (local & Vercel) --------- */
+  const BASES = ['/images/','./images/','images/']; // essaie ces bases (local & vercel)
+  const IMG_EXTS = ['jpg','jpeg','png'];
+
+  function buildImgCandidates(n){
+    const name = `img${n}`;
+    const urls = [];
+    for (const b of BASES) for (const e of IMG_EXTS) urls.push(`${b}${name}.${e}`);
+    return urls;
+  }
+  function buildVideoCandidates(n){
+    const name = `video${n}.mp4`;
+    return BASES.map(b => `${b}${name}`);
+  }
+
+  /* --------- CITATIONS --------- */
   const QUOTES = [
     "Mon Youssoupha, mon éternel coup de cœur.","Toi, le mien. Aujourd’hui, demain, toujours.",
     "Nur qalbi — نور قلبي — la lumière de mon cœur.","Mon Youssoupha, ma plus belle évidence.",
@@ -117,147 +134,135 @@
     "Chaque instant à deux est un trésor.","Auprès de toi, tout s’apaise.","Ton rire efface mes nuages.",
     "Tu es mon endroit préféré.","Nos pas au même rythme.","Mon demain commence à ton prénom.",
     "Mon cœur choisit le tien, encore.","Toi, c’est chez moi.",
-    /* 15 pour les vidéos */
-    "Nos rires en mouvement, souvenirs qui dansent.",
-    "Chaque seconde filmée, un battement de plus pour nous.",
-    "Nos regards se répondent, même à travers l’écran.",
-    "Le film de nous deux continue, scène après scène.",
-    "Des scènes de nous, comme des étoiles filantes.",
-    "Nos projets avancent, images après images.",
-    "Les minutes avec toi valent des films entiers.",
-    "Nos mains liées, même hors-champ.",
-    "Ton sourire, ma bande-son préférée.",
-    "Love in motion, toujours.",
-    "On rejoue la scène du bonheur, encore.",
-    "Nos voyages, nos fous rires : play.",
-    "Je t’aime à 25 images par seconde.",
-    "Nos souvenirs brillent comme du cinéma.",
-    "Et si le film ne finissait jamais ?"
+    "Nos rires en mouvement, souvenirs qui dansent.","Chaque seconde filmée, un battement de plus pour nous.",
+    "Nos regards se répondent, même à travers l’écran.","Le film de nous deux continue, scène après scène.",
+    "Des scènes de nous, comme des étoiles filantes.","Nos projets avancent, images après images.",
+    "Les minutes avec toi valent des films entiers.","Nos mains liées, même hors-champ.",
+    "Ton sourire, ma bande-son préférée.","Love in motion, toujours.","On rejoue la scène du bonheur, encore.",
+    "Nos voyages, nos fous rires : play.","Je t’aime à 25 images par seconde.","Nos souvenirs brillent comme du cinéma.","Et si le film ne finissait jamais ?"
   ];
 
-  /* --- Listes locales avec CHEMINS ABSOLUS (compat Vercel) --- */
-  const IMAGES = Array.from({length: 30}, (_,i) => ({
-    type:'img',
-    src:`/images/img${i+1}.jpg`,      // ← / au début
-    quote: QUOTES[i]
-  }));
+  /* --------- LISTES À PARTIR DE TES FICHIERS --------- */
+  const IMAGES = [];
+  for(let n=IMG_START; n<=IMG_END; n++){
+    IMAGES.push({ type:'img', idx:n, quote: QUOTES[(n-IMG_START)%QUOTES.length] });
+  }
+  const VIDEOS = Array.from({length:VIDEO_COUNT},(_,i)=>({ type:'video', idx:i+1, quote: QUOTES[(IMAGES.length + i)%QUOTES.length] }));
 
-  const VIDEOS = Array.from({length: 15}, (_,i) => ({
-    type:'video',
-    src:`/images/video${i+1}.mp4`,    // ← / au début
-    quote: QUOTES[30 + i]
-  }));
-
-  /* --- Alternance photo, photo, vidéo --- */
-  const MEDIA = [];
-  let pi=0, vi=0;
-  while (pi < IMAGES.length || vi < VIDEOS.length){
-    for(let k=0;k<2 && pi<IMAGES.length;k++) MEDIA.push(IMAGES[pi++]); // 2 photos
-    if(vi < VIDEOS.length) MEDIA.push(VIDEOS[vi++]);                   // 1 vidéo
+  // 2 photos / 1 vidéo
+  const MEDIA=[]; let pi=0,vi=0;
+  while(pi<IMAGES.length || vi<VIDEOS.length){
+    for(let k=0;k<2 && pi<IMAGES.length;k++) MEDIA.push(IMAGES[pi++]);
+    if(vi<VIDEOS.length) MEDIA.push(VIDEOS[vi++]);
   }
 
-  /* --- Génération de la grille --- */
+  /* --------- RENDU HTML --------- */
   const gal=document.getElementById('gallery');
   gal.innerHTML = MEDIA.map((m,i)=>{
-    const rndTilt = (Math.random() * 2 - 1.2).toFixed(2);
+    const tilt=(Math.random()*2-1.2).toFixed(2);
     if(m.type==='img'){
-      return `
-        <figure class="mb-4 card animate-pop" data-idx="${i}">
-          <img class="thumb" src="${m.src}" alt="Souvenir ${i+1}" loading="lazy" style="transform:rotate(${rndTilt}deg)">
-          <figcaption class="overlay">${m.quote}</figcaption>
-        </figure>`;
+      const cand = buildImgCandidates(m.idx);
+      return `<figure class="mb-4 card animate-pop" data-kind="img" data-candidates='${JSON.stringify(cand)}' style="transform:rotate(${tilt}deg)">
+        <img class="thumb" alt="Souvenir ${i+1}" loading="lazy">
+        <figcaption class="overlay">${m.quote}</figcaption>
+      </figure>`;
     }else{
-      return `
-        <figure class="mb-4 card animate-pop" data-idx="${i}" style="transform:rotate(${rndTilt}deg)">
-          <video class="thumb" muted playsinline preload="metadata" autoplay loop style="background:#000"></video>
-          <div class="playBadge">▶️ Vidéo</div>
-          <figcaption class="overlay">${m.quote}</figcaption>
-        </figure>`;
+      const cand = buildVideoCandidates(m.idx);
+      return `<figure class="mb-4 card animate-pop" data-kind="video" data-candidates='${JSON.stringify(cand)}' style="transform:rotate(${tilt}deg)">
+        <video class="thumb" muted playsinline preload="metadata" loop style="background:#000"></video>
+        <div class="absolute right-2 bottom-2 text-xs px-2 py-1 rounded-full bg-black/60 border border-white/20">▶️ Vidéo</div>
+        <figcaption class="overlay">${m.quote}</figcaption>
+      </figure>`;
     }
   }).join('');
 
-  /* --- Brancher les sources vidéo + pause hors écran --- */
+  /* --------- INJECTION SOURCES + FALLBACKS --------- */
   const figures=[...gal.querySelectorAll('figure')];
-  figures.forEach(fig=>{
-    const i = +fig.dataset.idx;
-    if(MEDIA[i].type==='video'){
-      const v = fig.querySelector('video');
-      const s = document.createElement('source');
-      s.src = MEDIA[i].src; s.type = 'video/mp4';
+
+  // Images : teste .jpg → .jpeg → .png et /images → ./images → images
+  figures.filter(f=>f.dataset.kind==='img').forEach(fig=>{
+    const img = fig.querySelector('img');
+    const list = JSON.parse(fig.dataset.candidates);
+    let k=0;
+    function tryNext(){ if(k<list.length){ img.src=list[k++]; } else { fig.remove(); } }
+    img.addEventListener('error', tryNext);
+    tryNext();
+  });
+
+  // Vidéos : teste bases différentes
+  figures.filter(f=>f.dataset.kind==='video').forEach(fig=>{
+    const v = fig.querySelector('video');
+    const list = JSON.parse(fig.dataset.candidates);
+    let k=0;
+    function tryNext(){
+      v.innerHTML='';
+      if(k>=list.length){ fig.remove(); return; }
+      const s=document.createElement('source');
+      s.src=list[k++]; s.type='video/mp4';
       v.appendChild(s);
-      v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
-      const io = new IntersectionObserver(entries=>{
-        entries.forEach(e=>{ e.isIntersecting ? v.play().catch(()=>{}) : v.pause(); });
-      }, {threshold:.25});
-      io.observe(v);
+      v.load();
     }
+    v.addEventListener('error', tryNext);
+    v.muted=true; v.autoplay=true; v.playsInline=true;
+    const io=new IntersectionObserver(es=>{
+      es.forEach(e=> e.isIntersecting ? v.play().catch(()=>{}) : v.pause());
+    },{threshold:.25});
+    io.observe(v);
+    tryNext();
   });
 
-  /* --- Mobile: 1er tap = citation, 2e tap = ouvre (immédiat) --- */
-  const isTouch = window.matchMedia('(hover: none)').matches;
-  const cards = [...gal.querySelectorAll('.card')];
-  cards.forEach((card,i)=>{
-    card.addEventListener('click', (e)=>{
-      if(!isTouch){ open(i); return; }
-      if(card.classList.contains('touch')){
-        card.classList.remove('touch'); open(i);
-      } else {
-        card.classList.add('touch');
-        setTimeout(()=> card.classList.remove('touch'), 1500);
-      }
-    });
-  });
+  /* --------- LIGHTBOX --------- */
+  const lb=document.getElementById('lightbox');
+  const lbImg=document.getElementById('lightImg');
+  const lbVid=document.getElementById('lightVid');
+  const prev=document.getElementById('prev');
+  const next=document.getElementById('next');
+  const close=document.getElementById('close');
+  let ORDER=[];  // liste des figures visibles
+  let idx=-1;
 
-  /* --- Lightbox --- */
-  const lb = document.getElementById('lightbox');
-  const lbImg = document.getElementById('lightImg');
-  const lbVid = document.getElementById('lightVid');
-  const prev  = document.getElementById('prev');
-  const next  = document.getElementById('next');
-  const close = document.getElementById('close');
-  let idx = -1;
+  function rebuildOrder(){ ORDER=[...document.querySelectorAll('#gallery figure')]; }
+  const ro=new MutationObserver(rebuildOrder);
+  ro.observe(gal,{childList:true}); rebuildOrder();
 
   function showMedia(i){
-    const m = MEDIA[i];
-    lbImg.style.display = 'none';
-    lbVid.style.display = 'none';
-    lbVid.pause();
+    const fig=ORDER[i]; if(!fig) return;
+    const kind=fig.dataset.kind;
+    lbImg.style.display='none'; lbVid.style.display='none'; lbVid.pause();
     lb.classList.add('show');
-    if(m.type==='img'){
-      lbImg.src = m.src;
-      lbImg.style.display = '';
+
+    if(kind==='img'){
+      const img=fig.querySelector('img');
+      lbImg.src = img.currentSrc || img.src;
+      lbImg.style.display='';
     }else{
-      lbVid.innerHTML = '';
-      const s = document.createElement('source');
-      s.src = m.src; s.type = 'video/mp4';
+      const v=fig.querySelector('video source');
+      lbVid.innerHTML='';
+      const s=document.createElement('source');
+      s.src=v?.src || ''; s.type='video/mp4';
       lbVid.appendChild(s);
-      lbVid.loop = true;
-      lbVid.autoplay = true;
-      lbVid.muted = false;   // son ON dans la lightbox
-      lbVid.playsInline = true;
-      lbVid.load();
-      lbVid.style.display = '';
-      lbVid.play().catch(()=>{}); // sur mobile : peut demander un tap ▶️
+      lbVid.loop=true; lbVid.autoplay=true; lbVid.muted=false; lbVid.playsInline=true;
+      lbVid.load(); lbVid.style.display=''; lbVid.play().catch(()=>{});
     }
   }
-  function open(i){
-    idx = i;
-    lb.style.display = 'flex';
-    requestAnimationFrame(()=> lb.classList.add('show'));
-    showMedia(idx);
-  }
-  function move(d){ idx = (idx + d + MEDIA.length) % MEDIA.length; showMedia(idx); }
-  function hide(){ lb.classList.remove('show'); lbVid.pause(); setTimeout(()=>{ lb.style.display = 'none'; }, 150); }
+  function open(i){ idx=i; lb.style.display='flex'; requestAnimationFrame(()=>lb.classList.add('show')); showMedia(idx); }
+  function move(d){ idx=(idx+d+ORDER.length)%ORDER.length; showMedia(idx); }
+  function hide(){ lb.classList.remove('show'); lbVid.pause(); setTimeout(()=>{ lb.style.display='none'; },150); }
 
-  prev.addEventListener('click', ()=>move(-1));
-  next.addEventListener('click', ()=>move(1));
-  close.addEventListener('click', hide);
-  lb.addEventListener('click', e=>{ if(e.target===lb) hide(); });
-  document.addEventListener('keydown', e=>{
-    if(lb.style.display!=='flex') return;
-    if(e.key==='Escape') hide();
-    if(e.key==='ArrowRight') move(1);
-    if(e.key==='ArrowLeft')  move(-1);
+  // Ouvrir au clic
+  document.addEventListener('click',e=>{
+    const f=e.target.closest('#gallery figure'); if(!f) return;
+    const i=ORDER.indexOf(f); if(i>-1) open(i);
+  });
+  prev.addEventListener('click',()=>move(-1));
+  next.addEventListener('click',()=>move(1));
+  close.addEventListener('click',hide);
+  lb.addEventListener('click',e=>{ if(e.target===lb) hide(); });
+  document.addEventListener('keydown',e=>{
+    if(lb.style.display!=='flex')return;
+    if(e.key==='Escape')hide();
+    if(e.key==='ArrowRight')move(1);
+    if(e.key==='ArrowLeft') move(-1);
   });
 </script>
 </body>
